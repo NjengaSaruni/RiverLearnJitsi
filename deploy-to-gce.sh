@@ -7,7 +7,7 @@ echo "🚀 Deploying Jitsi Meet to Google Cloud Engine"
 echo "=============================================="
 
 # Configuration
-PROJECT_ID="your-project-id"  # Replace with your GCP project ID
+PROJECT_ID="prefab-isotope-472219-p6"  # Your GCP project ID
 REPO_URL="https://github.com/NjengaSaruni/RiverLearnJitsi.git"
 ZONE="us-central1-a"          # Replace with your preferred zone
 INSTANCE_NAME="jitsi-meet-server"

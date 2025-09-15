@@ -177,8 +177,8 @@ gcloud iam service-accounts create jitsi-service-account \
     --display-name="Jitsi Meet Service Account"
 
 # Grant necessary permissions
-gcloud projects add-iam-policy-binding your-project-id \
-    --member="serviceAccount:jitsi-service-account@your-project-id.iam.gserviceaccount.com" \
+gcloud projects add-iam-policy-binding prefab-isotope-472219-p6 \
+    --member="serviceAccount:jitsi-service-account@prefab-isotope-472219-p6.iam.gserviceaccount.com" \
     --role="roles/compute.instanceAdmin"
 ```
 
