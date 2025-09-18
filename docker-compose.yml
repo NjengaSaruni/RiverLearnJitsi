@@ -102,13 +102,14 @@ services:
     environment:
       - ENABLE_AUTH=1
       - ENABLE_GUESTS=1
-      - ENABLE_LETSENCRYPT=1
-      - ENABLE_HTTP_REDIRECT=1
+      - ENABLE_LETSENCRYPT=0
+      - ENABLE_HTTP_REDIRECT=0
       - ENABLE_HSTS=1
       - LETSENCRYPT_DOMAIN=jitsi.riverlearn.co.ke
       - LETSENCRYPT_EMAIL=admin@riverlearn.co.ke
-      - LETSENCRYPT_USE_STAGING=0
+      - LETSENCRYPT_USE_STAGING=1
       - PUBLIC_URL=https://jitsi.riverlearn.co.ke
+      - NGINX_INCLUDE_FILE=/config/custom-nginx.conf
       - XMPP_DOMAIN=jitsi.riverlearn.co.ke
       - XMPP_AUTH_DOMAIN=auth.jitsi.riverlearn.co.ke
       - XMPP_BOSH_URL_BASE=http://prosody:5280
