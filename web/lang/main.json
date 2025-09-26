@@ -1,0 +1,11 @@
+{
+  "welcomepage": {
+    "title": "Welcome to RiverLearn",
+    "appDescription": "Your sovereign learning space",
+    "headerTitle": "RiverLearn",
+    "headerSubtitle": "Enter your name to begin"
+  },
+  "app": {
+    "name": "RiverLearn"
+  }
+}

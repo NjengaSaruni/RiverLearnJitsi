@@ -1,0 +1,145 @@
+version: '3.8'
+
+services:
+  # Prosody XMPP Server
+  prosody:
+    image: jitsi/prosody:unstable
+    container_name: jitsi-prosody
+    restart: unless-stopped
+    ports:
+      - "5222:5222"
+      - "5280:5280"
+      - "5347:5347"
+    volumes:
+      - prosody_data:/var/lib/prosody
+      - ./prosody:/config:ro
+    environment:
+      - AUTH_TYPE=token
+      - ENABLE_AUTH=0
+      - ENABLE_GUESTS=1
+      - XMPP_DOMAIN=jitsi.riverlearn.co.ke
+      - XMPP_AUTH_DOMAIN=auth.jitsi.riverlearn.co.ke
+      - XMPP_GUEST_DOMAIN=guest.jitsi.riverlearn.co.ke
+      - XMPP_MUC_DOMAIN=conference.jitsi.riverlearn.co.ke
+      - XMPP_INTERNAL_MUC_DOMAIN=internal-muc.jitsi.riverlearn.co.ke
+      - XMPP_RECORDER_DOMAIN=recorder.jitsi.riverlearn.co.ke
+      - JICOFO_COMPONENT_SECRET=your-jicofo-secret
+      - JICOFO_AUTH_USER=focus
+      - JICOFO_AUTH_PASSWORD=your-focus-password
+      - JVB_AUTH_USER=jvb
+      - JVB_AUTH_PASSWORD=your-jvb-password
+      - ENABLE_RECORDING=1
+      - TZ=UTC
+    networks:
+      - jitsi
+
+  # Jicofo (Jitsi Conference Focus)
+  jicofo:
+    image: jitsi/jicofo:unstable
+    container_name: jitsi-jicofo
+    restart: unless-stopped
+    volumes:
+      - ./jicofo:/config:ro
+    environment:
+      - AUTH_TYPE=token
+      - ENABLE_AUTH=0
+      - XMPP_DOMAIN=jitsi.riverlearn.co.ke
+      - XMPP_AUTH_DOMAIN=auth.jitsi.riverlearn.co.ke
+      - XMPP_INTERNAL_MUC_DOMAIN=internal-muc.jitsi.riverlearn.co.ke
+      - XMPP_SERVER=prosody
+      - JICOFO_COMPONENT_SECRET=your-jicofo-secret
+      - JICOFO_SECRET=your-jicofo-secret
+      - JICOFO_AUTH_USER=focus
+      - JICOFO_AUTH_PASSWORD=your-focus-password
+      - JVB_BREWERY_MUC=jvbbrewery
+      - TZ=UTC
+    depends_on:
+      - prosody
+    networks:
+      - jitsi
+
+  # Jitsi Videobridge
+  jvb:
+    image: jitsi/jvb:unstable
+    container_name: jitsi-jvb
+    restart: unless-stopped
+    ports:
+      - "10000:10000/udp"
+      - "4443:4443"
+    volumes:
+      - ./jvb:/config:ro
+    environment:
+      - DOCKER_HOST_ADDRESS=your-server-ip
+      - XMPP_AUTH_DOMAIN=auth.jitsi.riverlearn.co.ke
+      - XMPP_INTERNAL_MUC_DOMAIN=internal-muc.jitsi.riverlearn.co.ke
+      - XMPP_SERVER=prosody
+      - JVB_AUTH_USER=jvb
+      - JVB_AUTH_PASSWORD=your-jvb-password
+      - JVB_BREWERY_MUC=jvbbrewery
+      - JVB_PORT=10000
+      - JVB_TCP_HARVESTER_DISABLED=true
+      - JVB_TCP_PORT=4443
+      - JVB_TCP_MAPPED_PORT=4443
+      - JVB_STUN_SERVERS=meet-jit-si-turnrelay.jitsi.net:443
+      - JVB_ENABLE_APIS=colibri,rest
+      - TZ=UTC
+    depends_on:
+      - prosody
+    networks:
+      - jitsi
+
+  # Jitsi Meet Web Interface
+  web:
+    image: jitsi/web:unstable
+    container_name: jitsi-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./web:/config:ro
+      - ./web/letsencrypt:/etc/letsencrypt:ro
+    environment:
+      - ENABLE_AUTH=0
+      - ENABLE_GUESTS=1
+      - ENABLE_LETSENCRYPT=1
+      - ENABLE_HTTP_REDIRECT=1
+      - ENABLE_HSTS=1
+      - LETSENCRYPT_DOMAIN=jitsi.riverlearn.co.ke
+      - LETSENCRYPT_EMAIL=admin@riverlearn.co.ke
+      - LETSENCRYPT_USE_STAGING=0
+      - PUBLIC_URL=https://jitsi.riverlearn.co.ke
+      - NGINX_INCLUDE_FILE=/config/custom-nginx.conf
+      - XMPP_DOMAIN=jitsi.riverlearn.co.ke
+      - XMPP_AUTH_DOMAIN=auth.jitsi.riverlearn.co.ke
+      - XMPP_BOSH_URL_BASE=http://prosody:5280
+      - XMPP_GUEST_DOMAIN=guest.jitsi.riverlearn.co.ke
+      - XMPP_MUC_DOMAIN=conference.jitsi.riverlearn.co.ke
+      - XMPP_RECORDER_DOMAIN=recorder.jitsi.riverlearn.co.ke
+      - ENABLE_RECORDING=1
+      - ENABLE_LIVE_STREAMING=1
+      - ENABLE_TRANSCRIPTIONS=1
+      - ENABLE_WELCOME_PAGE=0
+      - ENABLE_CLOSE_PAGE=0
+      - ENABLE_PREJOIN_PAGE=1
+      - ENABLE_LOBBY=0
+      - ENABLE_AVATAR=1
+      - ENABLE_BREAKOUT_ROOMS=0
+      - ENABLE_MEETING_PASSWORD=1
+      - SHOW_JITSI_WATERMARK=0
+      - SHOW_WATERMARK_FOR_GUESTS=0
+      - SHOW_POWERED_BY=0
+      - TZ=UTC
+    depends_on:
+      - prosody
+      - jicofo
+      - jvb
+    networks:
+      - jitsi
+
+volumes:
+  prosody_data:
+
+networks:
+  jitsi:
+    driver: bridge
